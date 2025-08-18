@@ -1,5 +1,5 @@
 # potpie
-potpie (.pot password insights engine) is a tool developed to derive password metrics and insights based on passwords cracked during a penetration test.
+potpie (POT password insights engine) is a tool developed to derive password metrics and insights based on passwords cracked during a penetration test.
 
 
 ## Install
@@ -28,7 +28,7 @@ Usage: potpie [OPTIONS]
 │    --debug                      Enable DEBUG output                                      │
 │    --help     -h                Show this message and exit.                              │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
-
+```
 
 ## Examples
 ```sh
