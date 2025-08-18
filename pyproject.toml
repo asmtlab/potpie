@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "potpie"
+version = "0.1.0"
+description = ""
+authors = ["Karen Hitt"]
+readme = "README.md"
+homepage = "https://github.com/asmtlab/potpie"
+repository = "https://github.com/asmtlab/potpie"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+rich = "^12.5.1"
+typer = "^0.16.0"
+matplotlib = "^3.10.5"
+seaborn = "^0.13.2"
+jinja2 = "^3.1.6"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.13"
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+potpie = "potpie.__main__:app"

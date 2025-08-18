@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Analysis Report</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        h1 { color: #2c3e50; }
+        table { border-collapse: collapse; width: 60%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        img { max-width: 600px; display: block; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Password Analysis Report</h1>
+
+    <h2>Summary Metrics</h2>
+    <table>
+        <tr><th>Total Hashes</th><td>{{ metrics.total_hashes }}</td></tr>
+        <tr><th>Cracked Passwords</th><td>{{ metrics.total_cracked }}</td></tr>
+        <tr><th>Total Unique Hashes</th><td>{{ metrics.total_unique_hashes }}</td></tr>
+        <tr><th>Unique Cracked Passwords</th><td>{{ metrics.total_unique_cracked }}</td></tr>
+        <tr><th>Average Password Length</th><td>{{ "%.2f"|format(metrics.avg_length) }}</td></tr>
+        <tr><th>Average Complexity</th><td>{{ "%.2f"|format(metrics.avg_complexity) }}</td></tr>
+        <tr><th>Character Metrics</th><td>{{ metrics.char_class_counter }}</td></tr>
+        <tr><th>Top Masks</th><td>{{ metrics.top_masks }}</td></tr>
+        <tr><th>Policy Violations</th><td>{{ metrics.policy_violations }}</td></tr>
+        <tr><th>User = Password</th><td>{{ metrics.user_pw_match }}</td></tr>
+        <tr><th>Easily Guessable Passwords</th><td>{{ metrics.guessable_passwords }}</td></tr>
+        <tr><th># Easily Guessable Passwords</th><td>{{ metrics.guessable_count }}</td></tr>
+        <tr><th>Top 10 Reused Passwords</th><td>{{ metrics.top_10_reused }}</td></tr>
+    </table>
+
+    <h2>Charts</h2>
+    <h3>Cracked vs Uncracked</h3>
+    <img src="{{ image_paths.cracked_pie }}">
+
+    <h3>Password Length Distribution</h3>
+    <img src="{{ image_paths.length_hist }}">
+
+    <h3>Password Complexity Breakdown</h3>
+    <img src="{{ image_paths.complexity_bar }}">
+
+    <h3>Top Password Masks</h3>
+    <img src="{{ image_paths.mask_chart }}">
+
+    <h3>Top Reused Passwords</h3>
+    <img src="{{ image_paths.reused_passwords }}">
+</body>
+</html>
