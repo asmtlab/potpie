@@ -25,6 +25,10 @@ Usage: potpie [OPTIONS]
 │                                 [required]                                               │
 │ *  --potfile  -p      FILENAME  Path to the hashcat potfile [default: None]              │
 │                                 [required]                                               │
+│    --admins   -a      FILENAME  Path to file containing list of administrators           │
+│                                 [default: None]                                          │
+│    --kerb     -k      FILENAME  Path to file containing list of kerberoastable accounts  │
+│                                 [default: None]                                          │
 │    --debug                      Enable DEBUG output                                      │
 │    --help     -h                Show this message and exit.                              │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
@@ -40,6 +44,11 @@ Conduct password analysis for an environment with no `Minimum Password Length` a
 ```sh
 > poetry run potpie --length 0 --ntds ntds.dit --potfile cracked.potfile
 ```
+Conduct password analysis with lists of administrator and kerberoastable accounts (account names should be identical to how they are shown in the NTDS.dit file, including the domain where relevant):
+```sh
+> poetry run potpie --length 8 --complex --ntds ntds.dit --potfile cracked.potfile --admins admins.txt --kerb kerberoastable.txt
+```
+
 ## Development
 potpie uses Poetry to manage dependencies. Install from source and setup for development with:
 ```sh
