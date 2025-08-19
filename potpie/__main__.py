@@ -165,13 +165,11 @@ def main(
             raw_username = parts[0]
             domain = raw_username.split("\\")[0] if "\\" in raw_username else ""
             username = raw_username.split("\\")[-1]
-            rid = parts[1]
             nt_hash = parts[3].lower()
             plaintext = cracked_passwords.get(nt_hash)
             accounts.append({
                 "domain": domain,
                 "username": username,
-                "rid": rid,
                 "nt_hash": nt_hash,
                 "plaintext": plaintext # will be None if not cracked
             })
@@ -205,7 +203,14 @@ def main(
     total_cracked_admin = len(cracked_admin)
 
     # Kerberoastable accounts
-    kerberoastable_hashes = [acc for acc in accounts if acc['username'] in kerb_accounts]
+    kerberoastable_hashes = []
+    for acc in accounts:
+        if acc['domain']:
+            account_name = f"{acc['domain']}\\{acc['username']}"
+        else:
+            account_name = acc['username']
+        if account_name in kerb_accounts:
+            kerberoastable_hashes.append(acc)
     total_kerberoastable = len(kerberoastable_hashes)
     cracked_kerberoastable = [acc for acc in kerberoastable_hashes if acc['plaintext'] is not None]
     total_cracked_kerberoastable = len(cracked_kerberoastable)
