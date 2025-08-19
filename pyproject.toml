@@ -11,8 +11,7 @@ repository = "https://github.com/asmtlab/potpie"
 python = "^3.10"
 rich = "^12.5.1"
 typer = "^0.16.0"
-matplotlib = "^3.10.5"
-seaborn = "^0.13.2"
+plotly = "^6.3.0"
 jinja2 = "^3.1.6"
 
 [tool.poetry.group.dev.dependencies]

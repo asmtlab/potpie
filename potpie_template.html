@@ -3,48 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <title>Password Analysis Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial; margin: 20px; }
-        h1 { color: #2c3e50; }
-        table { border-collapse: collapse; width: 60%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        img { max-width: 600px; display: block; margin-bottom: 20px; }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1f1f1f;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #333;
+            border-radius: 5px;
+        }
+
+        .content {
+            padding: 100px 2rem 2rem 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            color: #ffffff;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.4rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .module {
+            background-color: #1a1a1a;
+            border: 1px solid #2c2c2c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 12px rgba(0,0,0,0.3);
+        }
+
+        .module h3 {
+            margin-top: 0;
+            color: #ffffff;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-content {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .text {
+            flex: 1 1 250px;
+            padding: 2rem;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 45%;
+        }
+
+        .chart {
+            flex: 1 1 250px;
+            padding: 2rem;
+            max-width: 45%;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.1rem;
+            border: 1px solid #2c2c2c;
+        }
+
+        th {
+            background-color: #242424;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #1e1e1e;
+        }
+
+        a.section-link {
+            color: #00bcd4;
+        }
+
+        @media screen and (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        .disclaimer {
+            background-color: #2c2c2c;
+            color: #cccccc;
+            border-left: 4px solid #f39c12;
+            padding: 12px 16px;
+            margin: 20px auto;
+            max-width: 1200px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
-    <h1>Password Analysis Report</h1>
+    <header>
+        <nav>
+            <a href="#summary">Summary</a>
+            <a href="#composition">Password Composition</a>
+            <a href="#weak">Weak Passwords</a>
+            <a href="#reuse">Password Reuse</a>
+            <a href="#policy">Policy Violations</a>
+            <a href="#breach">Breach Metrics</a>
+        </nav>
+    </header>
 
-    <h2>Summary Metrics</h2>
-    <table>
-        <tr><th>Total Hashes</th><td>{{ metrics.total_hashes }}</td></tr>
-        <tr><th>Cracked Passwords</th><td>{{ metrics.total_cracked }}</td></tr>
-        <tr><th>Total Unique Hashes</th><td>{{ metrics.total_unique_hashes }}</td></tr>
-        <tr><th>Unique Cracked Passwords</th><td>{{ metrics.total_unique_cracked }}</td></tr>
-        <tr><th>Average Password Length</th><td>{{ "%.2f"|format(metrics.avg_length) }}</td></tr>
-        <tr><th>Average Complexity</th><td>{{ "%.2f"|format(metrics.avg_complexity) }}</td></tr>
-        <tr><th>Character Metrics</th><td>{{ metrics.char_class_counter }}</td></tr>
-        <tr><th>Top Masks</th><td>{{ metrics.top_masks }}</td></tr>
-        <tr><th>Policy Violations</th><td>{{ metrics.policy_violations }}</td></tr>
-        <tr><th>User = Password</th><td>{{ metrics.user_pw_match }}</td></tr>
-        <tr><th>Easily Guessable Passwords</th><td>{{ metrics.guessable_passwords }}</td></tr>
-        <tr><th># Easily Guessable Passwords</th><td>{{ metrics.guessable_count }}</td></tr>
-        <tr><th>Top 10 Reused Passwords</th><td>{{ metrics.top_10_reused }}</td></tr>
-    </table>
+    <div class="content">
+        <p class="disclaimer">
+            <strong>Note:</strong> The analysis presented in this report is based solely on the subset of password hashes that were successfully collected and cracked. As a result, these insights may not fully represent the entire password population. For a complete security assessment, cracked password data should be considered alongside uncracked hashes, password policy enforcement, and user education strategies.
+        </p>
+        <section id="summary">
+            <h2>🔢 Summary</h2>
+            <div class="module">
+                <h3>Passwords Cracked</h3>
+                <div class="module-content">
+                    <div class="text">
+                        <table>
+                            <tr><td>Total Hashes Collected:</td><td><strong>{{ metrics.total_hashes }}</strong></td></tr>
+                            <tr><td>Total Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_percent }}</strong> ({{ metrics.total_cracked }}/{{ metrics.total_hashes }})</td></tr>
+                            <tr><td>Unique Hashes Collected:</td><td><strong>{{ metrics.total_unique_hashes }}</strong></td></tr>
+                            <tr><td>Unique Passwords Cracked:</td><td><strong>{{ metrics.total_unique_cracked_percent }}</strong> ({{ metrics.total_unique_cracked }}/{{ metrics.total_unique_hashes }})</td></tr>
+                            <tr><td>Total Administrator Hashes:</td><td><strong>{{ metrics.total_admin }}</strong></td></tr>
+                            <tr><td>Administrator Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_admin }}</strong></td></tr>
+                            <tr><td>Total Kerberoastable Hashes:</td><td><strong>{{ metrics.total_kerberoastable }}</strong></td></tr>
+                            <tr><td>Kerberoastable Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_kerberoastable }}</strong></td></tr>
+                        </table>
+                    </div>
+                    <div class="chart">
+                        {{ charts.cracked_chart }}
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <h2>Charts</h2>
-    <h3>Cracked vs Uncracked</h3>
-    <img src="{{ image_paths.cracked_pie }}">
+        <section id="composition">
+            <h2>📏 Password Composition</h2>
+            <div class="module">
+                <h3>Password Length</h3>
+                <table>
+                    <tr><td style="width:33%; text-align:center">Average Password Length: <strong>{{ "%.2f"|format(metrics.avg_length) }}</strong></td><td style="width:33%; text-align:center">Shortest Password: <strong>{{ metrics.shortest_password_length }}</strong></td><td style="width:33%; text-align:center">Longest Password: <strong>{{ metrics.longest_password_length }}</strong></td></tr>
+                </table>
+                <br>
+                <div style="width:100%">
+                    {{ charts.length_chart }}
+                </div>
+            </div>
+            <div class="module">
+                <h3>Password Complexity</h3>
+                <p>The complexity score is determined based on the presence of lowercase letters, uppercase letters, numbers, and special characters. A higher score indicates a more complex password. A score of 0 represents a blank password.</p>
+                <br>
+                <div style="width:100%">
+                    {{ charts.complexity_chart }}
+                </div>
+                <br>
+                <div class="module-content">
+                    <div class="text">
+                        <table>
+                            <tr><td>Passwords with 1 degree of complexity:</td><td><strong>{{ metrics.complexity_score_counter.1 }}</strong></td></tr>
+                            <tr><td>Passwords with 2 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.2 }}</strong></td></tr>
+                            <tr><td>Passwords with 3 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.3 }}</strong></td></tr>
+                            <tr><td>Passwords with 4 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.4 }}</strong></td></tr>
+                        </table>
+                    </div>
+                    <div class="text">
+                        <table>
+                            <tr><td>Passwords containing lowercase letters:</td><td><strong>{{ metrics.char_class_counter.lowercase }}</strong></td></tr>
+                            <tr><td>Passwords containing uppercase letters:</td><td><strong>{{ metrics.char_class_counter.uppercase }}</strong></td></tr>
+                            <tr><td>Passwords containing numbers:</td><td><strong>{{ metrics.char_class_counter.number }}</strong></td></tr>
+                            <tr><td>Passwords containing special characters:</td><td><strong>{{ metrics.char_class_counter.special }}</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="module">
+                <h3>Top Password Masks</h3>
+                <div>
+                    Masks are comprised of the following representations of characters:
+                    <br><br>
+                    <table style="text-align:center">
+                        <tr><td width="5%"><strong>?l</strong></td><td width="20%">lowercase letter</td><td width="5%"><strong>?u</strong></td><td width="20%">uppercase letter</td><td width="5%"><strong>?d</strong></td><td width="20%">digit (number)</td><td><strong>?s</strong></td><td>special character</td></tr>
+                    </table>
+                </div>
+                <br>
+                <div style="width:100%">
+                    {{ charts.mask_chart }}
+                </div>
+                <br>
+                {% if metrics.top_10_masks %}
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Mask</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mask, count in metrics.top_10_masks %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ mask or '[blank]' }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No common masks found.</p>
+                {% endif %}
+            </div>
+        </section>
 
-    <h3>Password Length Distribution</h3>
-    <img src="{{ image_paths.length_hist }}">
+        <section id="weak">
+            <h2>🧠 Weak Passwords</h2>
+            <div class="module">
+                <h3>Guessable Passwords</h3>
+                {% if metrics.guessable_passwords %}
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Password</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pw, count in metrics.guessable_passwords %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pw or '[blank]' }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No guessable passwords found.</p>
+                {% endif %}
+            </div>
+            <div class="module">
+                <h3>Username = Password</h3>
+                {% if metrics.user_pw_match %}
+                    The following accounts were identified to be configured with a password that matches the username:
+                    <br><br>
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Account</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for domain, account in metrics.user_pw_match %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ domain }}{% if domain %}\{% endif %}{{ account }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No accounts were found with a password that matches the username.</p>
+                {% endif %}
+            </div>
+        </section>
 
-    <h3>Password Complexity Breakdown</h3>
-    <img src="{{ image_paths.complexity_bar }}">
+        <section id="reuse">
+            <h2>🔁 Password Reuse</h2>
+            <div class="module">
+                <h3>Top Reused Passwords</h3>
+                <div style="width:100%">
+                    {{ charts.reused_chart }}
+                </div>
+                <br><br>
+                {% if metrics.top_10_reused %}
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Password</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pw, count in metrics.top_10_reused %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pw or '[blank]' }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No password reuse found.</p>
+                {% endif %}
+            </div>
+        </section>
 
-    <h3>Top Password Masks</h3>
-    <img src="{{ image_paths.mask_chart }}">
+        <section id="policy">
+            <h2>🚨 Policy Violations</h2>
+            <div class="module">
+                <h3>Password Length</h3>
+                {% if metrics.length_violations %}
+                    The following accounts are not aligned with the organization's password length policy:
+                    <br><br>
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Account</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for domain, account in metrics.length_violations %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ domain }}{% if domain %}\{% endif %}{{ account }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No password length violations found.</p>
+                {% endif %}
+            </div>
+            <div class="module">
+                <h3>Password Complexity</h3>
+                {% if metrics.complexity_violations %}
+                    The following accounts are not aligned with the organization's password complexity policy:
+                    <br><br>
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Account</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for domain, account in metrics.complexity_violations %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ domain }}{% if domain %}\{% endif %}{{ account }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No password complexity violations found.</p>
+                {% endif %}
+            </div>
+        </section>
 
-    <h3>Top Reused Passwords</h3>
-    <img src="{{ image_paths.reused_passwords }}">
+        <section id="breach">
+            <h2>🚨 Breach Metrics</h2>
+            <div class="module">
+                <h3>TBD</h3>
+                TBD
+            </div>
+        </section>
+    </div>
 </body>
 </html>
