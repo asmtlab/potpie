@@ -165,14 +165,17 @@ def main(
             raw_username = parts[0]
             domain = raw_username.split("\\")[0] if "\\" in raw_username else ""
             username = raw_username.split("\\")[-1]
-            nt_hash = parts[3].lower()
-            plaintext = cracked_passwords.get(nt_hash)
-            accounts.append({
-                "domain": domain,
-                "username": username,
-                "nt_hash": nt_hash,
-                "plaintext": plaintext # will be None if not cracked
-            })
+            if username[-1] == '$':
+                continue  # Skip machine accounts
+            else:
+                nt_hash = parts[3].lower()
+                plaintext = cracked_passwords.get(nt_hash)
+                accounts.append({
+                    "domain": domain,
+                    "username": username,
+                    "nt_hash": nt_hash,
+                    "plaintext": plaintext # will be None if not cracked
+                })
     
     admin_accounts = []
     if admins:
