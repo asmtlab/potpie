@@ -98,6 +98,12 @@
             max-width: 45%;
         }
 
+        .icon {
+            float: left;
+            margin-top: 4px;
+            margin-right: 10px;
+        }
+
         img {
             max-width: 100%;
             height: auto;
@@ -165,7 +171,8 @@
             <strong>Note:</strong> The analysis presented in this report is based solely on the subset of password hashes that were successfully collected and cracked. As a result, these insights may not fully represent the entire password population. For a complete security assessment, cracked password data should be considered alongside uncracked hashes, password policy enforcement, and user education strategies.
         </p>
         <section id="summary">
-            <h2>🔢 Summary</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+            </div><h2>Summary</h2>
             <div class="module">
                 <h3>Passwords Cracked</h3>
                 <div class="module-content">
@@ -189,7 +196,8 @@
         </section>
 
         <section id="composition">
-            <h2>📏 Password Composition</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="M80-200v-80h800v80H80Zm46-242-52-30 34-60H40v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Zm320 0-52-30 34-60h-68v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Zm320 0-52-30 34-60h-68v-60h68l-34-58 52-30 34 58 34-58 52 30-34 58h68v60h-68l34 60-52 30-34-60-34 60Z"/></svg></div>
+            <h2>Password Composition</h2>
             <div class="module">
                 <h3>Password Length</h3>
                 <table>
@@ -267,7 +275,8 @@
         </section>
 
         <section id="weak">
-            <h2>🧠 Weak Passwords</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="m770-302-60-62q40-11 65-42.5t25-73.5q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 57-29.5 105T770-302ZM634-440l-80-80h86v80h-6ZM792-56 56-792l56-56 736 736-56 56ZM440-280H280q-83 0-141.5-58.5T80-480q0-69 42-123t108-71l74 74h-24q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h65l79 80H320Z"/></svg></div>
+            <h2>Weak Passwords</h2>
             <div class="module">
                 <h3>Guessable Passwords</h3>
                 {% if metrics.guessable_passwords %}
@@ -321,7 +330,8 @@
         </section>
 
         <section id="reuse">
-            <h2>🔁 Password Reuse</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg></div>
+            <h2>Password Reuse</h2>
             <div class="module">
                 <h3>Top Reused Passwords</h3>
                 <div style="width:100%">
@@ -354,7 +364,8 @@
         </section>
 
         <section id="policy">
-            <h2>🚨 Policy Violations</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg></div>
+            <h2>Policy Violations</h2>
             <div class="module">
                 <h3>Password Length</h3>
                 {% if metrics.length_violations %}
@@ -408,7 +419,8 @@
         </section>
 
         <section id="breach">
-            <h2>🚨 Breach Metrics</h2>
+            <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="M480-320q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-160h80v-200h-80v200Zm40 400q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg></div>
+            <h2>Breach Metrics</h2>
             <div class="module">
                 <h3>TBD</h3>
                 TBD
