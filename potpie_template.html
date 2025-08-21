@@ -162,7 +162,7 @@
             <a href="#weak">Weak Passwords</a>
             <a href="#reuse">Password Reuse</a>
             <a href="#policy">Policy Violations</a>
-            <a href="#breach">Breach Metrics</a>
+            {% if hibp %}<a href="#breach">Breach Metrics</a>{% endif %}
         </nav>
     </header>
 
@@ -178,14 +178,14 @@
                 <div class="module-content">
                     <div class="text">
                         <table>
-                            <tr><td>Total Hashes Collected:</td><td><strong>{{ metrics.total_hashes }}</strong></td></tr>
+                            <tr><td>Total Hashes Collected:</td><td><strong>{{ "{:,}".format(metrics.total_hashes) }}</strong></td></tr>
                             <tr><td>Total Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_percent }}</strong> ({{ metrics.total_cracked }}/{{ metrics.total_hashes }})</td></tr>
-                            <tr><td>Unique Hashes Collected:</td><td><strong>{{ metrics.total_unique_hashes }}</strong></td></tr>
+                            <tr><td>Unique Hashes Collected:</td><td><strong>{{ "{:,}".format(metrics.total_unique_hashes) }}</strong></td></tr>
                             <tr><td>Unique Passwords Cracked:</td><td><strong>{{ metrics.total_unique_cracked_percent }}</strong> ({{ metrics.total_unique_cracked }}/{{ metrics.total_unique_hashes }})</td></tr>
-                            <tr><td>Total Administrator Hashes:</td><td><strong>{{ metrics.total_admin }}</strong></td></tr>
-                            <tr><td>Administrator Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_admin }}</strong></td></tr>
-                            <tr><td>Total Kerberoastable Hashes:</td><td><strong>{{ metrics.total_kerberoastable }}</strong></td></tr>
-                            <tr><td>Kerberoastable Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_kerberoastable }}</strong></td></tr>
+                            <tr><td>Total Administrator Hashes:</td><td><strong>{{ "{:,}".format(metrics.total_admin) }}</strong></td></tr>
+                            <tr><td>Administrator Passwords Cracked:</td><td><strong>{{ "{:,}".format(metrics.total_cracked_admin) }}</strong></td></tr>
+                            <tr><td>Total Kerberoastable Hashes:</td><td><strong>{{ "{:,}".format(metrics.total_kerberoastable) }}</strong></td></tr>
+                            <tr><td>Kerberoastable Passwords Cracked:</td><td><strong>{{ "{:,}".format(metrics.total_cracked_kerberoastable) }}</strong></td></tr>
                         </table>
                     </div>
                     <div class="chart">
@@ -219,18 +219,18 @@
                 <div class="module-content">
                     <div class="text">
                         <table>
-                            <tr><td>Passwords with 1 degree of complexity:</td><td><strong>{{ metrics.complexity_score_counter.1 }}</strong></td></tr>
-                            <tr><td>Passwords with 2 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.2 }}</strong></td></tr>
-                            <tr><td>Passwords with 3 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.3 }}</strong></td></tr>
-                            <tr><td>Passwords with 4 degrees of complexity:</td><td><strong>{{ metrics.complexity_score_counter.4 }}</strong></td></tr>
+                            <tr><td>Passwords with 1 degree of complexity:</td><td align="center"><strong>{{ "{:,}".format(metrics.complexity_score_counter.1) }}</strong></td></tr>
+                            <tr><td>Passwords with 2 degrees of complexity:</td><td align="center"><strong>{{ "{:,}".format(metrics.complexity_score_counter.2) }}</strong></td></tr>
+                            <tr><td>Passwords with 3 degrees of complexity:</td><td align="center"><strong>{{ "{:,}".format(metrics.complexity_score_counter.3) }}</strong></td></tr>
+                            <tr><td>Passwords with 4 degrees of complexity:</td><td align="center"><strong>{{ "{:,}".format(metrics.complexity_score_counter.4) }}</strong></td></tr>
                         </table>
                     </div>
                     <div class="text">
                         <table>
-                            <tr><td>Passwords containing lowercase letters:</td><td><strong>{{ metrics.char_class_counter.lowercase }}</strong></td></tr>
-                            <tr><td>Passwords containing uppercase letters:</td><td><strong>{{ metrics.char_class_counter.uppercase }}</strong></td></tr>
-                            <tr><td>Passwords containing numbers:</td><td><strong>{{ metrics.char_class_counter.number }}</strong></td></tr>
-                            <tr><td>Passwords containing special characters:</td><td><strong>{{ metrics.char_class_counter.special }}</strong></td></tr>
+                            <tr><td>Passwords containing lowercase letters:</td><td align="center"><strong>{{ "{:,}".format(metrics.char_class_counter.lowercase) }}</strong></td></tr>
+                            <tr><td>Passwords containing uppercase letters:</td><td align="center"><strong>{{ "{:,}".format(metrics.char_class_counter.uppercase) }}</strong></td></tr>
+                            <tr><td>Passwords containing numbers:</td><td align="center"><strong>{{ "{:,}".format(metrics.char_class_counter.number) }}</strong></td></tr>
+                            <tr><td>Passwords containing special characters:</td><td align="center"><strong>{{ "{:,}".format(metrics.char_class_counter.special) }}</strong></td></tr>
                         </table>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                             <tr>
                                 <th style="width:5%">#</th>
                                 <th>Mask</th>
-                                <th>Count</th>
+                                <th>Accounts</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -263,7 +263,7 @@
                                 <tr>
                                     <td>{{ loop.index }}</td>
                                     <td>{{ mask or '[blank]' }}</td>
-                                    <td>{{ count }}</td>
+                                    <td>{{ "{:,}".format(count) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -285,7 +285,7 @@
                             <tr>
                                 <th style="width:5%">#</th>
                                 <th>Password</th>
-                                <th>Count</th>
+                                <th>Accounts</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -293,7 +293,7 @@
                                 <tr>
                                     <td>{{ loop.index }}</td>
                                     <td>{{ pw or '[blank]' }}</td>
-                                    <td>{{ count }}</td>
+                                    <td>{{ "{:,}".format(count) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -344,7 +344,7 @@
                             <tr>
                                 <th style="width:5%">#</th>
                                 <th>Password</th>
-                                <th>Count</th>
+                                <th># Accounts</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -352,7 +352,7 @@
                                 <tr>
                                     <td>{{ loop.index }}</td>
                                     <td>{{ pw or '[blank]' }}</td>
-                                    <td>{{ count }}</td>
+                                    <td>{{ "{:,}".format(count) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -418,14 +418,59 @@
             </div>
         </section>
 
+        {% if hibp %}
         <section id="breach">
             <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#ffffff"><path d="M480-320q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-160h80v-200h-80v200Zm40 400q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg></div>
             <h2>Breach Metrics</h2>
             <div class="module">
-                <h3>TBD</h3>
-                TBD
+                <h3>HaveIBeenPwned Analysis</h3>
+                <div class="module-content">
+                    <div class="chart" align="center">
+                        {{ hibp_charts.breach_dial }}
+                    </div>
+                    <div class="text">
+                        <table>
+                            <tr><td>Total Breached Passwords:</td><td><strong>{{ "{:,}".format(hibp.cracked_passwords_found_in_HIBP) }} ({{ "%.2f"|format(hibp.percentage_found_in_HIBP) }}%)</strong></td></tr>
+                            <tr><td>Average Breach Exposure:</td><td><strong>{{ "{:,}".format(hibp.average_breach_count) }}</strong></td></tr>
+                            <tr><td>Passwords Exposed in 1-10 Breaches:</td><td><strong>{{ "{:,}".format(hibp.breach_count_distribution["1"]) }}</strong></td></tr>
+                            <tr><td>Passwords Exposed in 10-999 Breaches:</td><td><strong>{{ "{:,}".format(hibp.breach_count_distribution["2"]) }}</strong></td></tr>
+                            <tr><td>Passwords Exposed in 1k-10k Breaches:</td><td><strong>{{ "{:,}".format(hibp.breach_count_distribution["3"]) }}</strong></td></tr>
+                            <tr><td>Passwords Exposed in 10k-1M Breaches:</td><td><strong>{{ "{:,}".format(hibp.breach_count_distribution["4"]) }}</strong></td></tr>
+                            <tr><td>Passwords Exposed in 1M+ Breaches:</td><td><strong>{{ "{:,}".format(hibp.breach_count_distribution["5"]) }}</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    {{ hibp_charts.breach_distribution_chart }}
+                </div>
+            </div>
+            <div class="module">
+                <h3>Top Breached Passwords</h3>
+                {% if hibp.top_breached_passwords %}
+                    <table style="text-align:center">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th>Password</th>
+                                <th>Breaches</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pw, count in hibp.top_breached_passwords %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pw or '[blank]' }}</td>
+                                    <td>{{ "{:,}".format(count) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No breached passwords found.</p>
+                {% endif %}
             </div>
         </section>
+        {% endif %}
     </div>
 </body>
 </html>
