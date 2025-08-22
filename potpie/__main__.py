@@ -25,14 +25,14 @@ app = typer.Typer(
 HIBP_API_DELAY = 1.6  # seconds
 
 def print_banner():
-    console.print("""[white]
+    console.print("""
                              █     █     █                          
                             █     █     █                           
                            █     █     █                            
                             █     █     █                           
                              █     █     █                          
-                            █     █     █[/][yellow]                           
-                                                                    
+                            █     █     █                          
+                              [yellow]                                             
                         ████████████████████                        
                    █████    █     █     █   █████                   
               █████        █     █     █         █████              
