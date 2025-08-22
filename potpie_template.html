@@ -182,10 +182,10 @@
                             <tr><td>Total Passwords Cracked:</td><td><strong>{{ metrics.total_cracked_percent }}</strong> ({{ metrics.total_cracked }}/{{ metrics.total_hashes }})</td></tr>
                             <tr><td>Unique Hashes Collected:</td><td><strong>{{ "{:,}".format(metrics.total_unique_hashes) }}</strong></td></tr>
                             <tr><td>Unique Passwords Cracked:</td><td><strong>{{ metrics.total_unique_cracked_percent }}</strong> ({{ metrics.total_unique_cracked }}/{{ metrics.total_unique_hashes }})</td></tr>
-                            <tr><td>Total Administrator Hashes:</td><td><strong>{{ "{:,}".format(metrics.total_admin) }}</strong></td></tr>
-                            <tr><td>Administrator Passwords Cracked:</td><td><strong>{{ "{:,}".format(metrics.total_cracked_admin) }}</strong></td></tr>
-                            <tr><td>Total Kerberoastable Hashes:</td><td><strong>{{ "{:,}".format(metrics.total_kerberoastable) }}</strong></td></tr>
-                            <tr><td>Kerberoastable Passwords Cracked:</td><td><strong>{{ "{:,}".format(metrics.total_cracked_kerberoastable) }}</strong></td></tr>
+                            <tr><td>Total Administrator Hashes:</td><td><strong>{% if metrics.total_admin == "N/A" %}{{ metrics.total_admin }}{% else %}{{ "{:,}".format(metrics.total_admin) }}{% endif %}</strong></td></tr>
+                            <tr><td>Administrator Passwords Cracked:</td><td><strong>{% if metrics.total_cracked_admin == "N/A" %}{{ metrics.total_cracked_admin }}{% else %}{{ "{:,}".format(metrics.total_cracked_admin) }}{% endif %}</strong></td></tr>
+                            <tr><td>Total Kerberoastable Hashes:</td><td><strong>{% if metrics.total_kerberoastable == "N/A" %}{{ metrics.total_kerberoastable }}{% else %}{{ "{:,}".format(metrics.total_kerberoastable) }}{% endif %}</strong></td></tr>
+                            <tr><td>Kerberoastable Passwords Cracked:</td><td><strong>{% if metrics.total_cracked_kerberoastable == "N/A" %}{{ metrics.total_cracked_kerberoastable }}{% else %}{{ "{:,}".format(metrics.total_cracked_kerberoastable) }}{% endif %}</strong></td></tr>
                         </table>
                     </div>
                     <div class="chart">
