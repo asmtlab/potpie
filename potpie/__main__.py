@@ -25,9 +25,31 @@ app = typer.Typer(
 HIBP_API_DELAY = 1.6  # seconds
 
 def print_banner():
-    console.print("""[blue]
-    potpie
-    [/]""")
+    console.print("""
+                             █     █     █                          
+                            █     █     █                           
+                           █     █     █                            
+                            █     █     █                           
+                             █     █     █                          
+                            █     █     █                          
+                              [yellow]                                             
+                        ████████████████████                        
+                   █████    █     █     █   █████                   
+              █████        █     █     █         █████              
+          ████            █     █     █               ████          
+         █                                                █         
+ ████████                                                  ████████ 
+█       █                                                  █       █
+█                                                                  █
+ ███     █      █      █      █      █      █      █      █     ███ 
+   ▐█████ ██████ ██████ ██████ ██████ ██████ ██████ ██████ ██████[/]   
+    █▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄█▄▄█▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█    
+    █    █    █    █    █      █    █      █    █    █    █    █    
+     █    █    █    █    █     █    █     █    █    █    █    █     
+      █    █    █    █    █    █    █    █    █    █    █    █      
+       █▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄▄█▄▄▄█      
+    
+    """)
 
 
 def print_version():
@@ -146,7 +168,7 @@ def query_hibp_sha1(password):
     response = requests.get(url)
 
     if response.status_code != 200:
-        print(f"Error querying HaveIBeenPwned: {response.status_code}")
+        console.print(f"[bold red][!][/] Error querying HaveIBeenPwned: {response.status_code}")
         return 0
 
     for line in response.text.splitlines():
@@ -170,7 +192,7 @@ def generate_hibp_metrics(passwords):
             hibp_results[pwd] = count
             time.sleep(HIBP_API_DELAY)
         except Exception as e:
-            print(f"Error processing password '{pwd}': {e}")
+            console.print(f"[bold red][!][/] Error processing password '{pwd}': {e}")
             hibp_results[pwd] = 0
 
     total_cracked = sum(password_counts.values())
@@ -240,10 +262,14 @@ def generate_html_report(metrics, charts, hibp_metrics, hibp_charts, output_path
 
     rendered_html = template.render(metrics=metrics, charts=charts, hibp=hibp_metrics, hibp_charts=hibp_charts)
 
-    with open(output_path, "w") as f:
-        f.write(rendered_html)
+    try:
+        with open(output_path, "w") as f:
+            f.write(rendered_html)
+    except Exception as e:
+        console.print(f"[bold red][!][/] Error saving HTML report to {output_path}: {e}")
+        return
 
-    print(f"HTML report saved to {output_path}")
+    console.print(f"[bold green][✔][/] HTML report saved to {output_path}")
 
 
 @app.command(no_args_is_help=True, help=help())
@@ -259,11 +285,18 @@ def main(
     debug: bool = typer.Option(False, '--debug', help='Enable [green]DEBUG[/] output')):
 
     init_logger(debug)
+    added_message = "[bold green][+][/]"
+    info_message = "[bold blue][*][/]"
+    process_message = "[bold yellow][>][/]"
+    skip_message = "[bold red][-][/]"
+    error_message = "[bold red][!][/]"
+    success_message = "[bold green][✔][/]"
 
     cracked_passwords = {}
     for line in potfile:
         h, pw = line.strip().split(":", 1)
         cracked_passwords[h.lower()] = pw
+    console.print(f"{added_message} Loaded {len(cracked_passwords)} cracked passwords from potfile")
 
     accounts = []
     for line in ntds:
@@ -283,6 +316,7 @@ def main(
                     "nt_hash": nt_hash,
                     "plaintext": plaintext # will be None if not cracked
                 })
+    console.print(f"{added_message} Loaded {len(accounts)} accounts from NTDS file")
     
     # Total cracked password metrics
     total_hashes = len(accounts)
@@ -293,6 +327,8 @@ def main(
     unique_cracked = {acc['nt_hash'] for acc in accounts if acc['plaintext'] is not None}
     total_unique_hashes = len(unique_hashes)
     total_unique_cracked = len(unique_cracked)
+    console.print(f"{info_message} Unique hashes collected: {total_unique_hashes}")
+    console.print(f"{info_message} Unique passwords cracked: {total_unique_cracked}")
 
     # Administrator accounts
     admin_accounts = []
@@ -304,9 +340,12 @@ def main(
         total_admin = len(admin_hashes)
         cracked_admin = [acc for acc in admin_hashes if acc['plaintext'] is not None]
         total_cracked_admin = len(cracked_admin)
+        console.print(f"{info_message} Administrator accounts with matches from NTDS: {total_admin}")
+        console.print(f"{info_message} Administrator passwords cracked: {total_cracked_admin}")
     else:
         total_admin = "N/A"
         total_cracked_admin = "N/A"
+        console.print(f"{skip_message} No administrator account list provided, skipping admin metrics.")
 
     # Kerberoastable accounts
     kerb_accounts = []
@@ -325,19 +364,25 @@ def main(
         total_kerberoastable = len(kerberoastable_hashes)
         cracked_kerberoastable = [acc for acc in kerberoastable_hashes if acc['plaintext'] is not None]
         total_cracked_kerberoastable = len(cracked_kerberoastable)
+        console.print(f"{info_message} Kerberoastable accounts with matches from NTDS: {total_kerberoastable}")
+        console.print(f"{info_message} Kerberoastable passwords cracked: {total_cracked_kerberoastable}")
     else:
         total_kerberoastable = "N/A"
         total_cracked_kerberoastable = "N/A"
+        console.print(f"{skip_message} No Kerberoastable account list provided, skipping Kerberoast metrics.")
 
     # Password length analysis
+    console.print(f"{process_message} Performing password length analysis...")
     passwords = [acc['plaintext'] for acc in accounts if acc['plaintext'] is not None]
     avg_length = sum(len(pw) for pw in passwords) / len(passwords) if passwords else 0
     shortest_password = min(passwords, key=len)
     shortest_password_length = len(shortest_password) if shortest_password else 0
     longest_password = max(passwords, key=len)
     longest_password_length = len(longest_password) if longest_password else 0
+    console.print(f"{success_message} Password length analysis complete.")
 
     # Password complexity analysis
+    console.print(f"{process_message} Performing password complexity analysis...")
     complexity_scores = [sum(get_complexity_flags(pw).values()) for pw in passwords]
     avg_complexity = sum(complexity_scores) / len(complexity_scores)
 
@@ -349,13 +394,17 @@ def main(
         for k, v in flags.items():
             if v:
                 char_class_counter[k] += 1
+    console.print(f"{success_message} Password complexity analysis complete.")
 
     # Password mask analysis
+    console.print(f"{process_message} Performing password mask analysis...")
     mask_counter = Counter(get_mask(pw) for pw in passwords)
     mask_list = [(mask, count) for mask, count in mask_counter.items() if count > 1]
     top_10_masks = sorted(mask_list, key=lambda x: -x[1])[:10]
+    console.print(f"{success_message} Password mask analysis complete.")
     
     # Guessable password analysis
+    console.print(f"{process_message} Performing guessable password analysis...")
     common_patterns = [
         r"(spring|summer|fall|autumn|winter)\d{2,4}[!@#$%^&*]*",    # Season pattern
         r"(password|p@ssword|p@ssw0rd|passw0rd)\d*[!@#$%^&]*",  # password variants
@@ -368,16 +417,22 @@ def main(
     password_counter = Counter(passwords)
     guessable_passwords = [(pw, count) for pw, count in password_counter.items() if combined_re.search(pw)]
     guessable_count = len(guessable_passwords)
+    console.print(f"{info_message} Found {guessable_count} guessable passwords.")
 
     # Username = password matches
+    console.print(f"{process_message} Performing username = password analysis...")
     user_pw_match = [(acc['domain'], acc['username']) for acc in accounts if acc["plaintext"] and acc["plaintext"].lower() == acc["username"].lower()]
+    console.print(f"{info_message} Found {len(user_pw_match)} accounts where username matches password.")
 
     # Top 10 common passwords
+    console.print(f"{process_message} Performing password reuse analysis...")
     pw_counter = Counter(pw for pw in passwords)
     reused_pw_list = [(pw, count) for pw, count in pw_counter.items() if count > 1]
     top_10_reused = sorted(reused_pw_list, key=lambda x: -x[1])[:10]
+    console.print(f"{success_message} Password reuse analysis complete.")
 
     # Password policy violations
+    console.print(f"{process_message} Checking password policy violations based on minimum length ({min_length}) and complexity requirement ({require_complexity})...")
     length_violations = []
     complexity_violations = []
 
@@ -393,24 +448,27 @@ def main(
             length_violations.append((acc['domain'], acc['username']))
         if complexity_fail:
             complexity_violations.append((acc['domain'], acc['username']))
+    console.print(f"{info_message} Found {len(length_violations)} accounts with length violations.")
+    console.print(f"{info_message} Found {len(complexity_violations)} accounts with complexity violations.")
 
     # HIBP breach exposure metrics
     hibp_metrics = {}
     if breach_data:
-        print(f"Loading HaveIBeenPwned breach data from {breach_data.name}...")
+        console.print(f"{process_message} Loading HaveIBeenPwned breach data from {breach_data.name}")
         try:
             hibp_metrics = json.load(breach_data)
         except Exception as e:
-            print(f"Error loading HaveIBeenPwned data: {e}")
+            console.print(f"{error_message} Error loading HaveIBeenPwned data: {e}")
             hibp_metrics = {}
     elif breach:
-        print("Generating HaveIBeenPwned breach exposure metrics (this may take a while)...")
+        console.print(f"{process_message} Generating HaveIBeenPwned breach exposure metrics (this may take a while)...")
         hibp_metrics = generate_hibp_metrics(passwords)
         os.makedirs(os.path.dirname("./report/hibp_data.json"), exist_ok=True)
+        console.print(f"{process_message} Saving HaveIBeenPwned breach data to ./report/hibp_data.json")
         with open("./report/hibp_data.json", "w") as f:
             json.dump(hibp_metrics, f, indent=4)
     else:
-        print("Skipping HaveIBeenPwned breach analysis.")
+        console.print(f"{skip_message} Skipping HaveIBeenPwned breach analysis.")
 
     hibp_charts = {}
     if hibp_metrics:
@@ -419,8 +477,10 @@ def main(
         breach_distribution = hibp_metrics.get("breach_count_distribution", {})
         hibp_charts['breach_dial'] = create_hibp_dial(breach_percentage)
         hibp_charts['breach_distribution_chart'] = plot_breach_distribution_chart(average_breach_count, breach_distribution)
+        console.print(f"{success_message} HaveIBeenPwned breach metrics generated.")
 
     # Generate HTML report
+    console.print(f"{process_message} Generating HTML report...")
     metrics = {
         "total_hashes": total_hashes,
         "total_cracked": total_cracked,
