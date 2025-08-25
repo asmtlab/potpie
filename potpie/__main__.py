@@ -491,8 +491,6 @@ def main(
             length_violations.append((acc['domain'], acc['username']))
         if complexity_fail:
             complexity_violations.append((acc['domain'], acc['username']))
-        else:
-            acc['is_complex'] = True
     console.print(f"{info_message} Found {len(length_violations)} accounts with length violations.")
     console.print(f"{info_message} Found {len(complexity_violations)} accounts with complexity violations.")
 
