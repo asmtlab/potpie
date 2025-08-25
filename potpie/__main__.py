@@ -6,6 +6,7 @@ import hashlib
 import requests
 import time
 import importlib.metadata
+import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from collections import Counter, defaultdict
@@ -256,11 +257,48 @@ def plot_breach_distribution_chart(average_breach_count, breach_distribution):
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
 
-def generate_html_report(metrics, charts, hibp_metrics, hibp_charts, output_path="./report/potpie_report.html"):
+def generate_html_report(metrics, charts, hibp_metrics, hibp_charts, operator=False, output_path="./reports/potpie_report.html"):
     env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template("./potpie_template.html")
-
+    if operator:
+        template = env.get_template("./templates/potpie_operator_template.html")
+        output_path = "./reports/operator_report/potpie_operator_report.html"
+    else:
+        template = env.get_template("./templates/potpie_template.html")
+    
     rendered_html = template.render(metrics=metrics, charts=charts, hibp=hibp_metrics, hibp_charts=hibp_charts)
+
+    try:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+    except Exception as e:
+        console.print(f"[bold red][!][/] Error overwriting HTML report ({output_path}): {e}")
+        return
+
+    try:
+        with open(output_path, "w") as f:
+            f.write(rendered_html)
+            f.flush()
+    except Exception as e:
+        console.print(f"[bold red][!][/] Error saving HTML report to {output_path}: {e}")
+        return
+
+    if operator:
+        console.print(f"[bold green][✔][/] Operator report saved to {output_path}")
+    else:
+        console.print(f"[bold green][✔][/] Stakeholder report saved to {output_path}")
+
+
+def generate_details_report(accounts, output_path="./reports/operator_report/details/details_report.html"):
+    env = Environment(loader=FileSystemLoader('.'))
+    template = env.get_template("./templates/operator_details_template.html")
+    rendered_html = template.render(accounts=accounts)
+
+    try:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+    except Exception as e:
+        console.print(f"[bold red][!][/] Error overwriting HTML report ({output_path}): {e}")
+        return
 
     try:
         with open(output_path, "w") as f:
@@ -269,7 +307,7 @@ def generate_html_report(metrics, charts, hibp_metrics, hibp_charts, output_path
         console.print(f"[bold red][!][/] Error saving HTML report to {output_path}: {e}")
         return
 
-    console.print(f"[bold green][✔][/] HTML report saved to {output_path}")
+    console.print(f"[bold green][✔][/] Operator details report saved to {output_path}")
 
 
 @app.command(no_args_is_help=True, help=help())
@@ -298,6 +336,18 @@ def main(
         cracked_passwords[h.lower()] = pw
     console.print(f"{added_message} Loaded {len(cracked_passwords)} cracked passwords from potfile")
 
+    admin_accounts = []
+    if admins:
+        for line in admins:
+            account = line.strip().lower()
+            admin_accounts.append(account)
+    
+    kerb_accounts = []
+    if kerb:
+        for line in kerb:
+            account = line.strip().lower()
+            kerb_accounts.append(account)
+
     accounts = []
     for line in ntds:
         parts = line.strip().lower().split(":")
@@ -308,13 +358,22 @@ def main(
             if username[-1] == '$':
                 continue  # Skip machine accounts
             else:
+                is_admin = raw_username in admin_accounts
+                is_kerberoastable = raw_username in kerb_accounts
                 nt_hash = parts[3].lower()
                 plaintext = cracked_passwords.get(nt_hash)
+                complexity_flags = get_complexity_flags(plaintext) if plaintext is not None else None
+                complexity = sum(complexity_flags.values()) if plaintext is not None else None
                 accounts.append({
                     "domain": domain,
                     "username": username,
                     "nt_hash": nt_hash,
-                    "plaintext": plaintext # will be None if not cracked
+                    "plaintext": plaintext, # will be None if not cracked
+                    "is_cracked": plaintext is not None,
+                    "length": len(plaintext) if plaintext is not None else None,
+                    "complexity": complexity,
+                    "is_admin": is_admin,
+                    "is_kerberoastable": is_kerberoastable
                 })
     console.print(f"{added_message} Loaded {len(accounts)} accounts from NTDS file")
     
@@ -331,12 +390,8 @@ def main(
     console.print(f"{info_message} Unique passwords cracked: {total_unique_cracked}")
 
     # Administrator accounts
-    admin_accounts = []
     if admins:
-        for line in admins:
-            account = line.strip().lower()
-            admin_accounts.append(account)
-        admin_hashes = [acc for acc in accounts if acc['username'] in admin_accounts]
+        admin_hashes = [acc for acc in accounts if acc['is_admin']]
         total_admin = len(admin_hashes)
         cracked_admin = [acc for acc in admin_hashes if acc['plaintext'] is not None]
         total_cracked_admin = len(cracked_admin)
@@ -348,19 +403,8 @@ def main(
         console.print(f"{skip_message} No administrator account list provided, skipping admin metrics.")
 
     # Kerberoastable accounts
-    kerb_accounts = []
     if kerb:
-        for line in kerb:
-            account = line.strip().lower()
-            kerb_accounts.append(account)
-        kerberoastable_hashes = []
-        for acc in accounts:
-            if acc['domain']:
-                account_name = f"{acc['domain']}\\{acc['username']}"
-            else:
-                account_name = acc['username']
-            if account_name in kerb_accounts:
-                kerberoastable_hashes.append(acc)
+        kerberoastable_hashes = [acc for acc in accounts if acc['is_kerberoastable']]
         total_kerberoastable = len(kerberoastable_hashes)
         cracked_kerberoastable = [acc for acc in kerberoastable_hashes if acc['plaintext'] is not None]
         total_cracked_kerberoastable = len(cracked_kerberoastable)
@@ -441,13 +485,14 @@ def main(
         if not pw:
             continue
         too_short = len(pw) < min_length
-        flags = get_complexity_flags(pw)
-        classes_used = sum(flags.values())
+        classes_used = acc["complexity"]
         complexity_fail = require_complexity and classes_used < 3
         if too_short:
             length_violations.append((acc['domain'], acc['username']))
         if complexity_fail:
             complexity_violations.append((acc['domain'], acc['username']))
+        else:
+            acc['is_complex'] = True
     console.print(f"{info_message} Found {len(length_violations)} accounts with length violations.")
     console.print(f"{info_message} Found {len(complexity_violations)} accounts with complexity violations.")
 
@@ -463,9 +508,9 @@ def main(
     elif breach:
         console.print(f"{process_message} Generating HaveIBeenPwned breach exposure metrics (this may take a while)...")
         hibp_metrics = generate_hibp_metrics(passwords)
-        os.makedirs(os.path.dirname("./report/hibp_data.json"), exist_ok=True)
-        console.print(f"{process_message} Saving HaveIBeenPwned breach data to ./report/hibp_data.json")
-        with open("./report/hibp_data.json", "w") as f:
+        os.makedirs(os.path.dirname("./reports/hibp_data.json"), exist_ok=True)
+        console.print(f"{process_message} Saving HaveIBeenPwned breach data to ./reports/hibp_data.json")
+        with open("./reports/hibp_data.json", "w") as f:
             json.dump(hibp_metrics, f, indent=4)
     else:
         console.print(f"{skip_message} Skipping HaveIBeenPwned breach analysis.")
@@ -479,8 +524,8 @@ def main(
         hibp_charts['breach_distribution_chart'] = plot_breach_distribution_chart(average_breach_count, breach_distribution)
         console.print(f"{success_message} HaveIBeenPwned breach metrics generated.")
 
-    # Generate HTML report
-    console.print(f"{process_message} Generating HTML report...")
+    # Generate stakeholder report
+    console.print(f"{process_message} Generating stakeholder report...")
     metrics = {
         "total_hashes": total_hashes,
         "total_cracked": total_cracked,
@@ -523,6 +568,11 @@ def main(
 
     generate_html_report(metrics, charts, hibp_metrics, hibp_charts)
 
+    # Generate operator report
+    console.print(f"{process_message} Generating operator report...")
+    generate_details_report(accounts)
+    generate_html_report(metrics, charts, hibp_metrics, hibp_charts, operator=True)
+    
 
 if __name__ == '__main__':
     app(prog_name='potpie')
