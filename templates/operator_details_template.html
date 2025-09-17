@@ -219,29 +219,40 @@
                         <th>account</th>
                         <th>hash</th>
                         <th>password</th>
-                        <th>is_cracked
+                        <th>is_cracked</th>
+                        <th>length</th>
+                        <th>complexity</th>
+                        <th>is_admin</th>
+                        <th>is_kerberoastable</th>
+                    </tr>
+                    <tr>
+                        <th><input type="text" id="search" placeholder="Search domains" style="width:90%"></th>
+                        <th><input type="text" id="search" placeholder="Search accounts" style="width:90%"></th>
+                        <th><input type="text" id="search" placeholder="Search hashes" style="width:90%"></th>
+                        <th><input type="text" id="search" placeholder="Search passwords" style="width:90%"></th>
+                        <th>
                             <select id="crackedFilter">
                                 <option value="">All</option>
                                 <option value="True">True</option>
                                 <option value="False">False</option>
                             </select>
                         </th>
-                        <th>length
+                        <th>
                             <input type="number" id="minLength" placeholder="Min">
                             <input type="number" id="maxLength" placeholder="Max">
                         </th>
-                        <th>complexity
+                        <th>
                             <input type="number" id="minComplex" placeholder="Min">
                             <input type="number" id="maxComplex" placeholder="Max">
                         </th>
-                        <th>is_admin
+                        <th>
                             <select id="adminFilter">
                                 <option value="">All</option>
                                 <option value="True">True</option>
                                 <option value="False">False</option>
                             </select>
                         </th>
-                        <th>is_kerberoastable
+                        <th>
                             <select id="kerbFilter">
                                 <option value="">All</option>
                                 <option value="True">True</option>
@@ -270,7 +281,6 @@
 </body>
 </html>
 <script>
-
     function getURLParameter(name) {
         return new URLSearchParams(window.location.search).get(name);
     }
@@ -287,35 +297,81 @@
             "lengthMenu": [ [10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000] ],
             "columnDefs": [
                 { "orderable": false, "targets": [4, 7, 8] }
-            ]
+            ],
+            "initComplete": function () {
+                // Enable regex search for each column with a text input in the second header row
+                this.api().columns([0,1,2,3]).every(function (colIdx) {
+                    var that = this;
+                    // Map column index to parameter name
+                    var paramNames = ['domain', 'account', 'hash', 'password'];
+                    var param = paramNames[colIdx];
+                    var $input = $('input', this.header());
+                    // Set initial value from URL if present
+                    var urlVal = getURLParameter(param);
+                    if (urlVal !== null) {
+                        $input.val(urlVal);
+                        that.search(urlVal, true, false, true);
+                    }
+                    $input.on('keyup change clear', function () {
+                        if (that.search() !== this.value) {
+                            that.search(this.value, true, false, true).draw();
+                        }
+                    });
+                });
+            }
         });
 
         table.buttons().container().appendTo('#colvis-container');
 
         // Prevent ordering when clicking inside the length filter inputs
-        $('#minLength, #maxLength').on('mousedown click', function (e) {
+        $('#search, #minLength, #maxLength, #minComplex, #maxComplex').on('mousedown click', function (e) {
             e.stopPropagation();
         });
 
         // Custom filtering function for numeric ranges and exact match
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const isCracked = data[4];
-            const length = parseFloat(data[5]) || 0;
-            const complex = parseFloat(data[6]) || 0;
+            const lengthRaw = data[5];
+            const complexRaw = data[6];
+            const length = (lengthRaw === '-' || lengthRaw === '' || lengthRaw == null) ? NaN : parseFloat(lengthRaw);
+            const complex = (complexRaw === '-' || complexRaw === '' || complexRaw == null) ? NaN : parseFloat(complexRaw);
             const isAdmin = data[7];
             const isKerb = data[8];
 
             const crackedFilter = $('#crackedFilter').val();
-            const minLength = parseFloat($('#minLength').val()) || -Infinity;
-            const maxLength = parseFloat($('#maxLength').val()) || Infinity;
-            const minComplex = parseFloat($('#minComplex').val()) || -Infinity;
-            const maxComplex = parseFloat($('#maxComplex').val()) || Infinity;
+            const minLengthInput = $('#minLength').val();
+            const maxLengthInput = $('#maxLength').val();
+            const minLength = minLengthInput !== '' ? parseFloat(minLengthInput) : -Infinity;
+            const maxLength = maxLengthInput !== '' ? parseFloat(maxLengthInput) : Infinity;
+            const minComplexInput = $('#minComplex').val();
+            const maxComplexInput = $('#maxComplex').val();
+            const minComplex = minComplexInput !== '' ? parseFloat(minComplexInput) : -Infinity;
+            const maxComplex = maxComplexInput !== '' ? parseFloat(maxComplexInput) : Infinity;
             const adminFilter = $('#adminFilter').val();
             const kerbFilter = $('#kerbFilter').val();
 
             const crackedMatch = !crackedFilter || isCracked === crackedFilter;
-            const lengthMatch = length >= minLength && length <= maxLength;
-            const complexMatch = complex >= minComplex && complex <= maxComplex;
+
+            // Only apply length filter if either min or max is set
+            let lengthMatch = true;
+            if (minLengthInput !== '' || maxLengthInput !== '') {
+                if (isNaN(length)) {
+                    lengthMatch = false;
+                } else {
+                    lengthMatch = length >= minLength && length <= maxLength;
+                }
+            }
+
+            // Only apply complexity filter if either min or max is set
+            let complexMatch = true;
+            if (minComplexInput !== '' || maxComplexInput !== '') {
+                if (isNaN(complex)) {
+                    complexMatch = false;
+                } else {
+                    complexMatch = complex >= minComplex && complex <= maxComplex;
+                }
+            }
+
             const adminMatch = !adminFilter || isAdmin === adminFilter;
             const kerbMatch = !kerbFilter || isKerb === kerbFilter;
 
