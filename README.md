@@ -30,7 +30,7 @@ Usage: potpie [OPTIONS]
 │    --kerb     -k      FILENAME  Path to file containing list of kerberoastable accounts  │
 │                                 [default: None]                                          │
 │    --breach                     Enable HaveIBeenPwned breach analysis                    │
-│                                     (~1.6s per cracked password)                         |
+│                                     (~1.6s per cracked password)                         │
 │    --breach-data      FILENAME  Path to file containing HaveIBeenPwned breach data       │
 │                                 [default: None]                                          │
 │    --debug                      Enable DEBUG output                                      │
